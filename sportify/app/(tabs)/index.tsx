@@ -54,7 +54,7 @@ export default function Index() {
           style={styles.lockerButton}
           onPress={() => { alert("Locker Room Update Pressed"); }}
         >
-          <Text style={styles.lockerButtonText}>Locker Room Update</Text>
+          <Text style={[styles.lockerButtonText, { letterSpacing: 0.5 }]}>Locker Room Update</Text>
         </Pressable>
 
         {/* Upcoming Events Label */}
@@ -64,7 +64,7 @@ export default function Index() {
 
         {/* Horizontal Event Slider */}
         <FlatList
-          className="top-80"
+          className="mt-safe-offset-52"
           data={events}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
@@ -117,9 +117,8 @@ const styles = StyleSheet.create({
   },
   upcomingEventsLabel: {
     justifyContent: "center",
-    marginBottom: 12,
-    paddingLeft: 4,
-    top: 275,
+    // marginBottom: "6%",
+    top: 240,
   },
   upcomingEventsText: {
     fontSize: 24,
@@ -135,7 +134,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: 250,
-    height: 250, // 1:1 aspect ratio
+    height: 250,
+    marginTop: "2%",
     marginRight: 16,
     borderRadius: 20,
     overflow: "hidden",
