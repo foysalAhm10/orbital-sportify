@@ -22,20 +22,23 @@ const events = [
   },
 ];
 
-export default function Index() {
+const Index = () => {
   const renderItem = ({ item }: any) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
-      <View style={styles.overlay}>
-        <Text style={styles.title}>{item.title}</Text>
-      </View>
-      <View style={styles.dateCircle}>
-        <View style={styles.dateTextContainer}>
-          <Text style={styles.dateMonth}>{item.dateMonth}</Text>
-          <Text style={styles.dateDay}>{item.dateDay}</Text>
-        </View>
+    <Pressable
+    onPress={() => alert(`You tapped on ${item.title}`)}
+    style={styles.card}
+  >
+    <Image source={{ uri: item.imageUrl }} style={styles.image} />
+    <View style={styles.overlay}>
+      <Text style={styles.title}>{item.title}</Text>
+    </View>
+    <View style={styles.dateCircle}>
+      <View style={styles.dateTextContainer}>
+        <Text style={styles.dateMonth}>{item.dateMonth}</Text>
+        <Text style={styles.dateDay}>{item.dateDay}</Text>
       </View>
     </View>
+  </Pressable>
   );
 
   return (
@@ -77,6 +80,8 @@ export default function Index() {
     </LinearGradient>
   );
 }
+
+export default Index
 
 const styles = StyleSheet.create({
   gradientBackground: {
