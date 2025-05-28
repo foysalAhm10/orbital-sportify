@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
 const events = [
@@ -62,9 +62,9 @@ const Index = () => {
     >
       <SafeAreaView style={styles.screen}>
         {/* Welcome Text */}
-        <View style={styles.welcomeContainer}>
+        <SafeAreaView style={styles.welcomeContainer}>
           <Text style={styles.welcomeText}>WELCOME BACK, FOYSAL</Text>
-        </View>
+        </SafeAreaView>
 
         {/* Locker Room Update Button */}
         <Pressable
@@ -72,7 +72,7 @@ const Index = () => {
           onPress={() => setModalVisible(true)}
           // TODO: change colour when pressing on the button.
         >
-          <Text style={[styles.lockerButtonText, { letterSpacing: 0.5 }]}>
+          <Text style={styles.lockerButtonText}>
             Locker Room Update
           </Text>
         </Pressable>
@@ -86,7 +86,7 @@ const Index = () => {
         >
           <BlurView intensity={50} tint="dark" style={styles.blurContainer}>
             <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>Notifications</Text>
+              <Text style={styles.modalTitle}>Updates</Text>
               <Text style={styles.modalContent}>
                 • You have 2 new invites!{"\n"}
                 • New football session added on July 18.
@@ -103,13 +103,12 @@ const Index = () => {
 
 
         {/* Upcoming Events Label */}
-        <View style={styles.upcomingEventsLabel}>
+        <SafeAreaView style={styles.upcomingEventsLabel}>
           <Text style={styles.upcomingEventsText}>Upcoming Events</Text>
-        </View>
+        </SafeAreaView>
 
         {/* Horizontal Event Slider */}
         <FlatList
-          className="mt-safe-offset-52"
           data={events}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
@@ -132,27 +131,23 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 40,
+    // paddingTop: 40,
     backgroundColor: "transparent",
   },
   welcomeContainer: {
+    flex: 1,
     alignItems: "center",
-    marginBottom: 24,
+    justifyContent: "flex-start",
+    bottom: 20,
   },
   welcomeText: {
     color: "#F4F4F4",
     fontSize: 24,
     fontWeight: "600",
     fontFamily: "Montserrat",
-    textShadowColor: "rgba(0, 0, 0, 0.20)",
+    textShadowColor: "rgba(0, 0, 0, 0.15)",
     textShadowOffset: { width: 0, height: 4 },
     textShadowRadius: 4,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#EEF2F3",
-    justifyContent: "center",
-    alignItems: "center",
   },
   lockerButton: {
     backgroundColor: "rgba(8, 23, 34, 0.9)",
@@ -160,13 +155,14 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 32,
+    bottom: 150,
   },
   lockerButtonText: {
     color: "#F4F4F4",
     fontSize: 18,
     fontWeight: "500",
     fontFamily: "Inter",
+    letterSpacing: 0.5,
   },
   blurContainer: {
     flex: 1,
@@ -201,20 +197,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   closeButtonText: {
-    color: "white",
+    color: "#F4F4F4",
     fontSize: 16,
+    fontFamily: "Inter",
     textAlign: "center"
   },
   upcomingEventsLabel: {
     justifyContent: "center",
-    // marginBottom: "6%",
-    top: 240,
+    top: 20,
   },
   upcomingEventsText: {
     fontSize: 24,
     fontWeight: "600",
     color: "#0B2233",
     fontFamily: "Inter",
+    letterSpacing: 0.41,
   },
   flatList: {
     flexGrow: 0,
@@ -225,10 +222,11 @@ const styles = StyleSheet.create({
   card: {
     width: 250,
     height: 250,
-    marginTop: "2%",
+    // marginTop: "20%",
     marginRight: 16,
     borderRadius: 20,
     overflow: "hidden",
+    marginBottom: 75,
     position: "relative",
   },
   image: {
@@ -248,9 +246,10 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#F4F4F4",
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "700",
     fontFamily: "Inter",
+    letterSpacing: -0.41,
   },
   dateCircle: {
     position: "absolute",
