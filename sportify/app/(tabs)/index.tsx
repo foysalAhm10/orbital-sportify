@@ -1,5 +1,15 @@
-import React from "react";
-import { Text, View, StyleSheet, FlatList, Image, Pressable } from "react-native";
+import React, { useState } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Pressable,
+  Image,
+  FlatList,
+  Modal,
+  Dimensions,
+} from "react-native";
+import { BlurView } from "expo-blur";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -22,24 +32,28 @@ const events = [
   },
 ];
 
+const { width, height } = Dimensions.get("window");
+
 const Index = () => {
   const renderItem = ({ item }: any) => (
     <Pressable
-    onPress={() => alert(`You tapped on ${item.title}`)}
-    style={styles.card}
-  >
-    <Image source={{ uri: item.imageUrl }} style={styles.image} />
-    <View style={styles.overlay}>
-      <Text style={styles.title}>{item.title}</Text>
-    </View>
-    <View style={styles.dateCircle}>
-      <View style={styles.dateTextContainer}>
-        <Text style={styles.dateMonth}>{item.dateMonth}</Text>
-        <Text style={styles.dateDay}>{item.dateDay}</Text>
+      onPress={() => alert(`You tapped on ${item.title}`)}
+      style={styles.card}
+    >
+      <Image source={{ uri: item.imageUrl }} style={styles.image} />
+      <View style={styles.overlay}>
+        <Text style={styles.title}>{item.title}</Text>
       </View>
-    </View>
-  </Pressable>
+      <View style={styles.dateCircle}>
+        <View style={styles.dateTextContainer}>
+          <Text style={styles.dateMonth}>{item.dateMonth}</Text>
+          <Text style={styles.dateDay}>{item.dateDay}</Text>
+        </View>
+      </View>
+    </Pressable>
   );
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <LinearGradient
@@ -55,10 +69,38 @@ const Index = () => {
         {/* Locker Room Update Button */}
         <Pressable
           style={styles.lockerButton}
-          onPress={() => { alert("Locker Room Update Pressed"); }}
+          onPress={() => setModalVisible(true)}
+          // TODO: change colour when pressing on the button.
         >
-          <Text style={[styles.lockerButtonText, { letterSpacing: 0.5 }]}>Locker Room Update</Text>
+          <Text style={[styles.lockerButtonText, { letterSpacing: 0.5 }]}>
+            Locker Room Update
+          </Text>
         </Pressable>
+
+        {/* Modal with Blur Background */}
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <BlurView intensity={50} tint="dark" style={styles.blurContainer}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>Notifications</Text>
+              <Text style={styles.modalContent}>
+                • You have 2 new invites!{"\n"}
+                • New football session added on July 18.
+              </Text>
+              <Pressable
+                onPress={() => setModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </Pressable>
+            </View>
+          </BlurView>
+        </Modal>
+
 
         {/* Upcoming Events Label */}
         <View style={styles.upcomingEventsLabel}>
@@ -102,9 +144,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     fontFamily: "Montserrat",
-    textShadowColor: "rgba(0, 0, 0, 0.25)",
+    textShadowColor: "rgba(0, 0, 0, 0.20)",
     textShadowOffset: { width: 0, height: 4 },
     textShadowRadius: 4,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#EEF2F3",
+    justifyContent: "center",
+    alignItems: "center",
   },
   lockerButton: {
     backgroundColor: "rgba(8, 23, 34, 0.9)",
@@ -120,6 +168,43 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Inter",
   },
+  blurContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    backgroundColor: "#F4F4F4",
+    width: width * 0.8,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 260
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    fontFamily: "Inter",
+    color: "#0B2233",
+    marginBottom: 12,
+  },
+  modalContent: {
+    fontSize: 16,
+    textAlign: "left",
+    fontFamily: "Inter",
+    color: "#0B2233",
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: "#0B2233",
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    textAlign: "center"
+  },
   upcomingEventsLabel: {
     justifyContent: "center",
     // marginBottom: "6%",
@@ -128,7 +213,7 @@ const styles = StyleSheet.create({
   upcomingEventsText: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#081722",
+    color: "#0B2233",
     fontFamily: "Inter",
   },
   flatList: {
