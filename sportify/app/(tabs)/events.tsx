@@ -6,6 +6,7 @@ import {
   FlatList,
   Modal,
   TouchableOpacity,
+  TextInput,
 } from 'react-native'
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -41,7 +42,21 @@ const eventsList = [
 
 const Events = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [showForm, setShowForm] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState('');
+  const [sportsType, setsportsType] = useState('');
+  const [skillLevel, setskillLevel] = useState('');
+  const [location, setLocation] = useState('');
+
+  const handleAddEvent = () => {
+    alert(`Event Created: ${title} on ${date} at ${location}`);
+    setShowForm(false);
+    setTitle(''); //to reset after closing (after adding event)
+    setDate('');
+    setLocation('');
+  };
 
   const renderItem = ({ item }: any) => (
     <View>
@@ -52,10 +67,8 @@ const Events = () => {
           setIsModalVisible(true);
         }}
       >
-        <View className="flex-1 bg-slate-600">
+        <View className="flex-1 justify-evenly">
           <Text style={styles.eventsCardTitle}>{item.title}</Text>
-        </View>
-        <View className="flex-1">
           <Text style={styles.eventsCardTitle}>{item.description}</Text>
         </View>
       </Pressable>
@@ -89,11 +102,58 @@ const Events = () => {
       <SafeAreaView style={styles.screen}>
         <View style={styles.topBarContainer}>
           <Text style={styles.eventsText}>Events</Text>
-          <Pressable /*onPress={() => setShowForm(!showForm)}*/
-            onPress={() => alert("You have pressed the Add Event Button!")}>
+          <TouchableOpacity onPress={() => setShowForm(!showForm)}
+            /*onPress={() => alert("You have pressed the Add Event Button!")}*/>
             <Ionicons name="add-circle-outline" size={32} color="#2685EB" />
-          </Pressable>
+          </TouchableOpacity>
         </View>
+
+        {showForm && (
+          <Modal style={styles.form}>
+            <SafeAreaView style={styles.modalScreen}>
+              <View className='flex-1 justify-center'>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Event Title"
+                  placeholderTextColor="#141B41"
+                  value={title}
+                  onChangeText={setTitle}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Date (e.g. 15-06-2025)"
+                  placeholderTextColor="#141B41"
+                  value={date}
+                  onChangeText={setDate}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Sports Type (e.g. Football)"
+                  placeholderTextColor="#141B41"
+                  value={sportsType}
+                  onChangeText={setsportsType}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Skill Level"
+                  placeholderTextColor="#141B41"
+                  value={skillLevel}
+                  onChangeText={setskillLevel}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Location"
+                  placeholderTextColor="#141B41"
+                  value={location}
+                  onChangeText={setLocation}
+                />
+                <Pressable style={styles.addEventButton} onPress={handleAddEvent}>
+                  <Text style={styles.addEventButtonText}>Add Event</Text>
+                </Pressable>
+              </View>
+            </SafeAreaView>
+          </Modal>
+        )}
         <FlatList
           data={eventsList}
           renderItem={renderItem}
@@ -120,7 +180,7 @@ const styles = StyleSheet.create({
   },
   modalScreen: {
     flex: 1,
-    backgroundColor: "#1B2432",
+    backgroundColor: "#8EA4D2",
     paddingHorizontal: 16,
   },
   topBarContainer: {
@@ -144,9 +204,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   eventsCard: {
-    flex: 1,
     height: 250,
-    // marginTop: 10,
     padding: 10,
     borderWidth: 3,
     borderRadius: 15,
@@ -172,5 +230,28 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Inter',
     padding: 8,
-  }
+  },
+  form: {
+    marginTop: 10,
+  },
+  input: {
+    height: 50,
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  addEventButton: {
+    backgroundColor: '#141B41',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  addEventButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 })
