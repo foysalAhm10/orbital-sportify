@@ -1,7 +1,6 @@
 import { View, Text, Image } from 'react-native'
 import React from 'react'
-import { Tabs } from 'expo-router'
-
+import { Redirect, Tabs } from 'expo-router'
 import { tabIcons } from '@/constants/tab-icons'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
@@ -24,6 +23,7 @@ const TabIcon = ({ focused, icon }: any) => {
     )
 
 }
+
 
 const _Layout = () => {
     return (

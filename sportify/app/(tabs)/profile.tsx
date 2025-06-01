@@ -1,32 +1,22 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { View, Text, Pressable } from 'react-native'
+import React from 'react'
+import { AuthContextProvider, useAuth } from '@/context/authContext';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { Button } from 'react-native';
 
-const Profile = () => {
+const profile = () => {
+  const { logout, user } = useAuth();
+  const handleLogout = async () => {
+    await logout();
+  }
+  console.log("user data: ", user);
+
   return (
-    <SafeAreaView style={styles.screen}>
-      <View style={styles.profileContainer}>
-        <Text style={styles.profileText}>Profile</Text>
+      <View style={{ paddingTop: hp(12), paddingHorizontal: wp(5) }} className="flex-1 gap-12 " >
+        <Text>Profile</Text>
+        <Button title = "Logout" onPress={handleLogout}/>
       </View>
-    </SafeAreaView>
   )
 }
 
-export default Profile
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#A2BFCA",
-    paddingHorizontal: 20,
-  },
-  profileContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  profileText: {
-    fontFamily: 'Inter',
-    fontSize: 24,
-    fontWeight: "700",
-  }
-})
+export default profile;
