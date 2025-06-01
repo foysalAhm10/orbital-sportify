@@ -3,8 +3,8 @@ import React from 'react'
 import { AuthContextProvider, useAuth } from '@/context/authContext';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Button } from 'react-native';
-const profile = () => {
 
+const profile = () => {
   const { logout, user } = useAuth();
   const handleLogout = async () => {
     await logout();
@@ -18,4 +18,5 @@ const profile = () => {
       </View>
   )
 }
+
 export default profile;
