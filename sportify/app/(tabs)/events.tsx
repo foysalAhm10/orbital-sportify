@@ -102,8 +102,7 @@ const Events = () => {
       <SafeAreaView style={styles.screen}>
         <View style={styles.topBarContainer}>
           <Text style={styles.eventsText}>Events</Text>
-          <TouchableOpacity onPress={() => setShowForm(!showForm)}
-            /*onPress={() => alert("You have pressed the Add Event Button!")}*/>
+          <TouchableOpacity onPress={() => setShowForm(!showForm)} >
             <Ionicons name="add-circle-outline" size={32} color="#2685EB" />
           </TouchableOpacity>
         </View>

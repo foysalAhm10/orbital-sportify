@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import React, { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import Loading from '@/components/loading';
@@ -9,7 +9,7 @@ export default function StartPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      return router.replace('/signin'); // Change 'SignIn' to your actual sign-in route name
+      return router.replace('/signin');
     }, 2000); // 2000ms = 2 seconds
 
     return () => clearTimeout(timer);

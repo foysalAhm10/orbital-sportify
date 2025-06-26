@@ -9,6 +9,4 @@ export default function Loading({size}) {
   )
 }
 
-
-
 const styles = StyleSheet.create({})

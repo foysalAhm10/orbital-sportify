@@ -1,101 +1,71 @@
-import { createContext, useContext, useEffect, useState, } from "react";
-import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { auth } from "@/firebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/firebaseConfig";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
-
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-    console.log("got user:", user);
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(undefined);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (user) => {
-            console.log("onAuthStateChanged user:", user);
-            if (user) {
-                setUser(user);
-                setIsAuthenticated(true);
-                updateUserData(user.uid);
-            } else {
-                setUser(null);
-                setIsAuthenticated(false);
-            }
-        });
-        return unsub;
-    }, []);
+  // Watch auth state changes
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_, session) => {
+      setUser(session?.user || null);
+      setLoading(false);
+    });
 
-    const updateUserData = async (userId) => {
-        const docRef = doc(db, "users", user);
-        const docSnap = await getDoc(docRef);
+    // Initial fetch
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+      setLoading(false);
+    });
 
-        if (docSnap.exists()) {
-            let data = docSnap.data();
-            setUser({...user, username: data.username, userId: data.userId});
-        } else {
-            console.log("No such document!");
-        }
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Login with email (behind the scenes)
+  const loginWithEmail = async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, msg: error.message };
     }
 
+    return { success: true };
+  };
 
-    const login = async(email, password) => {
-        try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            return { success: true};
+  // Login with username (wrapper)
+  const login = async (username, password) => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('username', username.trim().toLowerCase())
+      .single();
 
-        } catch (e) {
-            let msg = e.message;
-            if(msg.includes("(auth/invalid-email)")) msg = "Invalid email address";
-            if(msg.includes("(auth/invalid-credential)")) msg = "Invalid credentials";
-            return { success: false, msg };
-        }
+    if (error || !profile?.email) {
+      return { success: false, msg: 'Username not found' };
     }
 
-        const logout = async() => {
-            try {
-                await signOut(auth);
-                return { success: true };
-            } catch (e) {
-                return { success: false, msg: e.message, error : e };
-        }
-        }
+    return await loginWithEmail(profile.email, password);
+  };
 
-    const register = async(email, password, username) => {
-        try {
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            console.log("response.user :", response?.user);
+  // Logout
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('Logout error:', error.message);
+  };
 
-            //setUser(response?.user);
-            //setIsAuthenticated(true);
-
-            await setDoc(doc(db, "users", response?.user?.uid), {
-                username,
-                userId: response?.user?.uid,
-            });
-            return { success: true, data: response?.user };
-        } catch (e) {
-            let msg = e.message;
-            if(msg.includes("(auth/invalid-email)")) msg = "Invalid email address";
-            if(msg.includes("(auth/email-already-in-use)")) msg = "Email already in use";
-            return { success: false, msg };
-        }
-    }
-
-    return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, logout, register }}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
-
-export const useAuth = () => {
-    const value = useContext(AuthContext);
-
-    if (!value) {
-        throw new Error("useAuth must be used within an AuthContextProvider");
-    }
-    return value;
+  return (
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(AuthContext);
 

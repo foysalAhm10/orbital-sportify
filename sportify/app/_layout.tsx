@@ -1,5 +1,4 @@
-import { Redirect, Stack, useSegments } from "expo-router";
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useSegments } from "expo-router";
 import "./globals.css";
 import { useEffect } from "react";
 import { AuthContextProvider } from "@/context/authContext";

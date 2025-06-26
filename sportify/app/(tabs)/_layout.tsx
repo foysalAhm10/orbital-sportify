@@ -1,6 +1,6 @@
-import { View, Text, Image } from 'react-native'
+import { Image } from 'react-native'
 import React from 'react'
-import { Redirect, Tabs } from 'expo-router'
+import { Tabs } from 'expo-router'
 import { tabIcons } from '@/constants/tab-icons'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 

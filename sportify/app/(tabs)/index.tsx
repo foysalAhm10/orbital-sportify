@@ -70,7 +70,6 @@ const Index = () => {
         <Pressable
           style={styles.lockerButton}
           onPress={() => setModalVisible(true)}
-        // TODO: change colour when pressing on the button.
         >
           <Text style={styles.lockerButtonText}>
             Locker Room Update

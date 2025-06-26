@@ -1,109 +1,227 @@
-import { View, Text } from 'react-native'
-import React, { use } from 'react'
-//signin import below
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Pressable,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Octicons, MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-//import signup from '../signup';
-import { useRef, useState } from 'react';
-import { TextInput, TouchableOpacity, Pressable, Alert, Image } from 'react-native';
-import Loading from '@/components/loading'; // Assuming you have a Loading component
-import CustomKeyboardView from '@/components/CustomKeyboardView';
-import { useAuth } from '@/context/authContext'; // Assuming you have a useAuth hook for authentication
+
+import { supabase } from '@/lib/supabase';
+import Loading from '@/components/loading';
 
 export default function Signin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-
-  const emailRef = useRef("");
-  const passwordRef = useRef("");
-
+  const [username, setUsername] = useState('');
+  // const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    if (!emailRef.current || !passwordRef.current) {
-      Alert.alert("Sign in", "Please fill in all fields!");
-      return;
-    }
-    setLoading(true);
-    const response = await login(emailRef.current, passwordRef.current);
-    setLoading(false);
-    console.log("sign in response :", response);
-    if (!response.success) {
-      Alert.alert("Sign in", response.msg);
-    }
-    //login process
+  if (!username || !password) {
+    Alert.alert("Login", "Please enter both username and password.");
+    return;
   }
 
+  setLoading(true);
+
+  // 1. Lookup the email from `profiles` using username
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('username', username.trim().toLowerCase())
+    .single();
+
+  if (error || !profile?.email) {
+    setLoading(false);
+    Alert.alert("Login Error", "Username not found.");
+    return;
+  }
+
+  // 2. Sign in using email from profiles
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: profile.email,
+    password,
+  });
+
+  setLoading(false);
+
+  if (signInError) {
+    Alert.alert("Login Error", "Incorrect password.");
+  } else {
+    Alert.alert("Welcome back!");
+    router.replace('/');
+  }
+};
+
+
+
+
   return (
-    <CustomKeyboardView>
-      <StatusBar style="dark" />
-      <View style={{ paddingTop: hp(12), paddingHorizontal: wp(5) }} className="flex-1 gap-12 ">
-        <View className="items-center">
-          <Image style={{ height: hp(12) }} resizeMode="contain" source={require('@/assets/images/login.png')} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.container}
+    >
+      <StatusBar style="light" /> {/* default is light, but jic we need to change later */}
+      <View style={styles.content}>
+        <View style={styles.bannerContainer}>
+          <Text style={styles.loginBanner}>
+            SPORTIFY
+          </Text>
+          <Text style={styles.taglineText}>
+            Game On. Anytime. Anywhere.
+          </Text>
         </View>
 
+        <Text style={styles.headerText}>Sign In</Text>
 
-        <View className="gap-10">
-          <Text style={{ fontSize: hp(3) }} className="font-bold tracking wider text-center text-neutral-800">Sign In</Text>
-          {/*inputs */}
-          <View className="gap-4">
-            <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl">
-              <Octicons name="mail" size={hp(2.7)} color="grey" />
+        <View style={styles.inputGroup}>
+
+          <View style={styles.inputRow}>
+            <Octicons name="person" size={20} color="grey" />
+            <TextInput
+              placeholder="Username"
+              placeholderTextColor="grey"
+              style={styles.input}
+              value={username}
+              onChangeText={setUsername}
+            />
+          </View>
+
+          <View>
+            <View style={styles.inputRow}>
+              <MaterialIcons name="password" size={20} color="grey" />
               <TextInput
-                onChangeText={value => emailRef.current = value}
-                style={{ fontSize: hp(2) }}
-                className="flex-1 font-semibold text-neutral-700"
-                placeholder="Email"
+                placeholder="Password"
                 placeholderTextColor="grey"
+                style={styles.input}
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
               />
             </View>
-            <View className="gap-3">
-              <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl">
-                <MaterialIcons name="password" size={hp(2.7)} color="grey" />
-                <TextInput
-                  onChangeText={value => passwordRef.current = value}
-                  style={{ fontSize: hp(2) }}
-                  className="flex-1 font-semibold text-neutral-700"
-                  placeholder="Password"
-                  placeholderTextColor="grey"
-                  secureTextEntry={true}
-                />
-              </View>
-              <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-right text-neutral-400">Forgot Password?</Text>
+            <Text style={styles.forgotText}>Forgot Password?</Text>
+          </View>
+
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <Loading size={50} />
             </View>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Sign In</Text>
+            </TouchableOpacity>
+          )}
 
-            {/* Sign in button*/}
-            <View>
-              {
-                loading ? (
-                  <View className="flex-row justify-center items-center">
-                    <Loading size={hp(8)} />
-                  </View>
-                ) : (
-                  <TouchableOpacity onPress={handleLogin} style={{ height: hp(6.5) }} className="bg-blue-800 rounded-xl justify-center items-center">
-                    <Text style={{ fontSize: hp(2.8) }} className="text-white font-bold tracking-wider" >
-                      Sign In
-                    </Text>
-                  </TouchableOpacity>
-                )
-              }
-            </View>
-
-
-            {/* Sign up text */}
-
-            <View className="flex-row justify-center">
-              <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-neutral-500" >Don't have an account? </Text>
-              <Pressable onPress={() => router.push("/signup")} >
-                <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-indigo-500" >Sign Up</Text>
-              </Pressable>
-            </View>
-
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account? </Text>
+            <Pressable onPress={() => router.push('/signup')}>
+              <Text style={styles.footerLink}>Sign Up</Text>
+            </Pressable>
           </View>
         </View>
       </View>
-    </CustomKeyboardView>
-  )
+    </KeyboardAvoidingView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#245E87',
+  },
+  content: {
+    flex: 1,
+    paddingTop: 80,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+    gap: 40,
+  },
+  bannerContainer: {
+    alignItems: 'center',
+  },
+  loginBanner: {
+    fontSize: 50,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    fontFamily: 'Montserrat_700Bold',
+  },
+  taglineText: {
+    fontSize: 16,
+    color: '#F4C542',
+    textAlign: 'center',
+    marginTop: 8,
+    fontFamily: 'Lato_400Regular',
+  },
+  headerText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#1e1e1e',
+  },
+  inputGroup: {
+    gap: 20,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 48,
+    backgroundColor: '#e5e5e5',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '600',
+  },
+  forgotText: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'right',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  button: {
+    height: 48,
+    backgroundColor: '#1e3a8a',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#7a7a7a',
+    fontWeight: '600',
+  },
+  footerLink: {
+    fontSize: 14,
+    color: '#6366f1',
+    fontWeight: '600',
+  },
+});

@@ -1,126 +1,232 @@
-import { View, Text } from 'react-native'
-import React, { use } from 'react'
-//signup imports and code below
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { StatusBar } from 'expo-status-bar';
-import { Octicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    Pressable,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+} from 'react-native';
+import { useState } from 'react';
 import { useRouter } from 'expo-router';
-//import signup from '../signup';
-import { useRef, useState } from 'react';
-import { TextInput, TouchableOpacity, Pressable, Alert, Image } from 'react-native';
-import Loading from '@/components/loading'; // Assuming you have a Loading component
-import CustomKeyboardView from '@/components/CustomKeyboardView';
-import { useAuth } from '@/context/authContext'; // Assuming you have a useAuth hook for authentication
+import { StatusBar } from 'expo-status-bar';
+import { Octicons, MaterialIcons } from '@expo/vector-icons';
+
+import { supabase } from '@/lib/supabase';
+import Loading from '@/components/loading';
 
 export default function Signup() {
     const router = useRouter();
-    const { register } = useAuth();
     const [loading, setLoading] = useState(false);
-
-
-    const emailRef = useRef("");
-    const passwordRef = useRef("");
-    const usernameRef = useRef("");
-
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleRegister = async () => {
-        if (!emailRef.current || !passwordRef.current || !usernameRef.current) {
-            Alert.alert("Sign Up", "Please fill in all fields!");
+        if (!email || !password || !username) {
+            Alert.alert('Sign Up', 'Please fill in all fields!');
             return;
         }
+
         setLoading(true);
 
-        //Register process
-        let response = await register(emailRef.current, passwordRef.current, usernameRef.current);
-        setLoading(false);
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+        });
 
-        console.log("response :", response);
-        if (!response.success) {
-            Alert.alert("Sign Up", response.msg)
+        if (error) {
+            Alert.alert('Sign Up Error', error.message);
+            setLoading(false);
+            return;
         }
 
-    }
+        const user = data?.user;
+
+        if (user) {
+            // Insert extra data into `profiles`
+            const { error: profileError } = await supabase.from('profiles').insert([
+                {
+                    id: user.id, // match with auth.users
+                    username: username,
+                    email: email,
+                },
+            ]);
+
+            if (profileError) {
+                Alert.alert('Profile Error', profileError.message);
+            } else {
+                Alert.alert('Account created!', 'Welcome to Sportify!');
+                router.replace('/');
+            }
+        }
+
+        setLoading(false);
+    };
 
     return (
-
-        <CustomKeyboardView>
-            <StatusBar style="dark" />
-            <View style={{ paddingTop: hp(10), paddingHorizontal: wp(5) }} className="flex-1 gap-12 ">
-                <View className="items-center">
-                    <Image style={{ height: hp(12) }} resizeMode="contain" source={require('@/assets/images/login.png')} />
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            {/* <StatusBar style="dark" /> */}
+            <View style={styles.content}>
+                <View style={styles.bannerContainer}>
+                    <Text style={styles.loginBanner}>
+                        SPORTIFY
+                    </Text>
+                    <Text style={styles.taglineText}>
+                        Game On. Anytime. Anywhere.
+                    </Text>
                 </View>
 
+                <Text style={styles.headerText}>Sign Up</Text>
 
-                <View className="gap-10">
-                    <Text style={{ fontSize: hp(3) }} className="font-bold tracking wider text-center text-neutral-800">Sign Up</Text>
-                    {/*inputs */}
-                    <View className="gap-4">
-                        <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl">
-                            <FontAwesome5 name="user-circle" size={hp(2.9)} color="grey" />
-                            <TextInput
-                                onChangeText={value => usernameRef.current = value}
-                                style={{ fontSize: hp(2) }}
-                                className="flex-1 font-semibold text-neutral-700"
-                                placeholder="Username"
-                                placeholderTextColor="grey"
-                            />
+                <View style={styles.inputGroup}>
+
+                    <View style={styles.inputRow}>
+                        <Octicons name="person" size={20} color="grey" />
+                        <TextInput
+                            value={username}
+                            onChangeText={setUsername}
+                            placeholder="Username"
+                            placeholderTextColor="grey"
+                            style={styles.input}
+                        />
+                    </View>
+
+                    <View style={styles.inputRow}>
+                        <Octicons name="mail" size={20} color="grey" />
+                        <TextInput
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="Email"
+                            placeholderTextColor="grey"
+                            style={styles.input}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    <View style={styles.inputRow}>
+                        <MaterialIcons name="password" size={20} color="grey" />
+                        <TextInput
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="Password (at least 6 characters)"
+                            placeholderTextColor="grey"
+                            style={styles.input}
+                            secureTextEntry
+                        />
+                    </View>
+
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <Loading size={50} />
                         </View>
+                    ) : (
+                        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                            <Text style={styles.buttonText}>Sign Up</Text>
+                        </TouchableOpacity>
+                    )}
 
-                        <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl">
-                            <Octicons name="mail" size={hp(2.7)} color="grey" />
-                            <TextInput
-                                onChangeText={value => emailRef.current = value}
-                                style={{ fontSize: hp(2) }}
-                                className="flex-1 font-semibold text-neutral-700"
-                                placeholder="Email"
-                                placeholderTextColor="grey"
-                            />
-                        </View>
-
-                        <View style={{ height: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-200 items-center rounded-2xl">
-                            <MaterialIcons name="password" size={hp(2.7)} color="grey" />
-                            <TextInput
-                                onChangeText={value => passwordRef.current = value}
-                                style={{ fontSize: hp(2) }}
-                                className="flex-1 font-semibold text-neutral-700"
-                                placeholder="Password"
-                                placeholderTextColor="grey"
-                                secureTextEntry={true}
-                            />
-                        </View>
-
-
-                        {/* Sign in button*/}
-                        <View>
-                            {
-                                loading ? (
-                                    <View className="flex-row justify-center items-center">
-                                        <Loading size={hp(8)} />
-                                    </View>
-                                ) : (
-                                    <TouchableOpacity onPress={handleRegister} style={{ height: hp(6.5) }} className="bg-blue-800 rounded-xl justify-center items-center">
-                                        <Text style={{ fontSize: hp(2.8) }} className="text-white font-bold tracking-wider" >
-                                            Sign Up
-                                        </Text>
-                                    </TouchableOpacity>
-                                )
-                            }
-                        </View>
-
-
-                        {/* Sign up text */}
-
-                        <View className="flex-row justify-center">
-                            <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-neutral-500" > Already have an account? </Text>
-                            <Pressable onPress={() => router.push("/signin")} >
-                                <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-indigo-500" >Log In</Text>
-                            </Pressable>
-                        </View>
-
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>Already have an account? </Text>
+                        <Pressable onPress={() => router.push('/signin')}>
+                            <Text style={styles.footerLink}>Log In</Text>
+                        </Pressable>
                     </View>
                 </View>
             </View>
-        </CustomKeyboardView>
-
-    )
+        </KeyboardAvoidingView>
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#245E87',
+    },
+    content: {
+        flex: 1,
+        paddingHorizontal: 24,
+        paddingTop: 80,
+        justifyContent: 'center',
+        gap: 40,
+    },
+    bannerContainer: {
+        alignItems: 'center',
+    },
+    loginBanner: {
+        fontSize: 50,
+        fontWeight: 'bold',
+        color: 'white',
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 2,
+        fontFamily: 'Montserrat_700Bold',
+    },
+    taglineText: {
+        fontSize: 16,
+        color: '#F4C542',
+        textAlign: 'center',
+        marginTop: 8,
+        fontFamily: 'Lato_400Regular',
+    },
+    headerText: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#1e1e1e',
+    },
+    inputGroup: {
+        gap: 20,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 48,
+        backgroundColor: '#e5e5e5',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        gap: 10,
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        color: '#333',
+        fontWeight: '600',
+    },
+    button: {
+        height: 48,
+        backgroundColor: '#1e3a8a',
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    loadingContainer: {
+        alignItems: 'center',
+    },
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    footerText: {
+        fontSize: 14,
+        color: '#7a7a7a',
+        fontWeight: '600',
+    },
+    footerLink: {
+        fontSize: 14,
+        color: '#6366f1',
+        fontWeight: '600',
+    },
+});

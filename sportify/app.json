@@ -4,7 +4,7 @@
     "slug": "sportify",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/auth_images/Sportify_LOGO.png",
     "scheme": "sportify",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -33,7 +33,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
