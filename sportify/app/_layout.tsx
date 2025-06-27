@@ -1,25 +1,41 @@
 import { useSegments } from "expo-router";
 import "./globals.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AuthContextProvider } from "@/context/authContext";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "expo-router";
 import { Slot } from "expo-router";
+import { Text, View, ActivityIndicator } from "react-native";
+import Loading from "@/components/loading";
 
 const MainLayout = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const [hasMounted, setHasMounted] = useState(false); 
 
   useEffect(() => {
-    if (typeof isAuthenticated == "undefined") return;
+    setHasMounted(true); // now we're sure we can use router
+  }, []);
+
+  useEffect(() => {
+     if (!hasMounted || loading) return; // wait for mount & loading complete
     const inApp = segments[0] == "(tabs)";
     if (isAuthenticated && !inApp) {
       router.replace("/(tabs)");
-    } else if (isAuthenticated == false) {
+    } else if (!isAuthenticated && inApp) {
       router.replace("/signin");
     }
-  }, [isAuthenticated]);
+  }, [hasMounted, loading, isAuthenticated, segments]);
+
+  if (!hasMounted || loading || typeof isAuthenticated === "undefined") {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Loading size={150} />
+      </View>
+    );
+  }
+
   return <Slot />
 }
 

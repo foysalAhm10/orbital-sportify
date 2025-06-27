@@ -8,10 +8,15 @@ import {
   FlatList,
   Modal,
   Dimensions,
+  TouchableHighlight,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { useAuth } from '@/context/authContext';
+import { supabase } from '@/lib/supabase';
+import { useEffect } from 'react';
+
 
 const events = [
   {
@@ -35,6 +40,30 @@ const events = [
 const { width, height } = Dimensions.get("window");
 
 const Index = () => {
+  const { user } = useAuth();
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error("Failed to fetch username:", error.message);
+        return;
+      }
+
+      setUsername(data.username);
+    };
+
+    fetchUsername();
+  }, [user]);
+
   const renderItem = ({ item }: any) => (
     <Pressable
       onPress={() => alert(`You tapped on ${item.title}`)}
@@ -60,21 +89,25 @@ const Index = () => {
       colors={["#A2BFCA", "#EEF2F3"]}
       style={styles.gradientBackground}
     >
-      <SafeAreaView style={styles.screen}>
+      <View style={styles.screen}>
         {/* Welcome Text */}
         <SafeAreaView style={styles.welcomeContainer}>
-          <Text style={styles.welcomeText}>WELCOME BACK, FOYSAL</Text>
+          <Text style={styles.welcomeText}>
+            WELCOME BACK, {username?.toUpperCase() || "..."}
+          </Text>
         </SafeAreaView>
 
         {/* Locker Room Update Button */}
-        <Pressable
+        <TouchableHighlight
+          activeOpacity={0.8}
+          underlayColor="#6498BF"
           style={styles.lockerButton}
           onPress={() => setModalVisible(true)}
         >
           <Text style={styles.lockerButtonText}>
             Locker Room Update
           </Text>
-        </Pressable>
+        </TouchableHighlight>
 
         {/* Modal with Blur Background */}
         <Modal
@@ -90,12 +123,14 @@ const Index = () => {
                 • You have 2 new invites!{"\n"}
                 • New football session added on July 18.
               </Text>
-              <Pressable
+              <TouchableHighlight
+                activeOpacity={0.8}
+                underlayColor="#6498BF"
                 onPress={() => setModalVisible(false)}
                 style={styles.closeButton}
               >
                 <Text style={styles.closeButtonText}>Close</Text>
-              </Pressable>
+              </TouchableHighlight>
             </View>
           </BlurView>
         </Modal>
@@ -116,7 +151,7 @@ const Index = () => {
           contentContainerStyle={styles.flatListContent}
           style={styles.flatList}
         />
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   );
 }
@@ -130,14 +165,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingHorizontal: 16,
-    // paddingTop: 40,
+    paddingTop: 40,
     backgroundColor: "transparent",
+    paddingBottom: 25,
   },
   welcomeContainer: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
-    bottom: 20,
   },
   welcomeText: {
     color: "#F4F4F4",
@@ -154,7 +188,7 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: "center",
     alignItems: "center",
-    bottom: 150,
+    bottom: 200,
   },
   lockerButtonText: {
     color: "#F4F4F4",

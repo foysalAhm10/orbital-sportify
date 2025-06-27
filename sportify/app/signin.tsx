@@ -21,48 +21,44 @@ export default function Signin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
-  // const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-  if (!username || !password) {
-    Alert.alert("Login", "Please enter both username and password.");
-    return;
-  }
+    if (!username || !password) {
+      Alert.alert("Login", "Please enter both username and password.");
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  // 1. Lookup the email from `profiles` using username
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('email')
-    .eq('username', username.trim().toLowerCase())
-    .single();
+    // 1. Lookup the email from `profiles` using username
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('username', username.trim().toLowerCase())
+      .single();
 
-  if (error || !profile?.email) {
+    if (error || !profile?.email) {
+      setLoading(false);
+      Alert.alert("Login Error", "Username not found.");
+      return;
+    }
+
+    // 2. Sign in using email from profiles
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: profile.email,
+      password,
+    });
+
     setLoading(false);
-    Alert.alert("Login Error", "Username not found.");
-    return;
-  }
 
-  // 2. Sign in using email from profiles
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: profile.email,
-    password,
-  });
-
-  setLoading(false);
-
-  if (signInError) {
-    Alert.alert("Login Error", "Incorrect password.");
-  } else {
-    Alert.alert("Welcome back!");
-    router.replace('/');
-  }
-};
-
-
-
+    if (signInError) {
+      Alert.alert("Login Error", "Incorrect password.");
+    } else {
+      Alert.alert("Welcome back!");
+      router.replace('/');
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -80,7 +76,9 @@ export default function Signin() {
           </Text>
         </View>
 
-        <Text style={styles.headerText}>Sign In</Text>
+        <View style={{ top: 15 }}>
+          <Text style={styles.headerText}>Log In</Text>
+        </View>
 
         <View style={styles.inputGroup}>
 
@@ -116,7 +114,7 @@ export default function Signin() {
             </View>
           ) : (
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={styles.buttonText}>Log In</Text>
             </TouchableOpacity>
           )}
 
@@ -145,16 +143,20 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   bannerContainer: {
+    bottom: 40,
     alignItems: 'center',
   },
   loginBanner: {
-    fontSize: 50,
+    fontSize: 60,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 2,
-    fontFamily: 'Montserrat_700Bold',
+    fontFamily: Platform.select({
+      ios: 'Marker Felt',
+      android: 'casual',
+    }),
   },
   taglineText: {
     fontSize: 16,
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#1e1e1e',
+    color: 'white',
   },
   inputGroup: {
     gap: 20,

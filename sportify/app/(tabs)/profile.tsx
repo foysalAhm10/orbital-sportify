@@ -3,8 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Alert,
+  TouchableHighlight,
 } from 'react-native';
 import { useAuth } from '@/context/authContext';
 import { router } from 'expo-router';
@@ -27,10 +27,14 @@ export default function Profile() {
       <Text style={styles.headerText}>Profile</Text>
 
       <Text style={styles.userEmail}>Signed in as: {user?.email || 'No email found'}</Text>
-      
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
+
+      <TouchableHighlight
+        activeOpacity={0.8}
+        underlayColor="#6498BF"
+        style={styles.button}
+        onPress={handleLogout}>
         <Text style={styles.buttonText}>Log Out</Text>
-      </TouchableOpacity>
+      </TouchableHighlight>
     </View>
   );
 }

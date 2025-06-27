@@ -6,13 +6,11 @@ import {
     TouchableOpacity,
     Pressable,
     Alert,
-    Image,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { Octicons, MaterialIcons } from '@expo/vector-icons';
 
 import { supabase } from '@/lib/supabase';
@@ -72,7 +70,6 @@ export default function Signup() {
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-            {/* <StatusBar style="dark" /> */}
             <View style={styles.content}>
                 <View style={styles.bannerContainer}>
                     <Text style={styles.loginBanner}>
@@ -129,7 +126,7 @@ export default function Signup() {
                         </View>
                     ) : (
                         <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                            <Text style={styles.buttonText}>Sign Up</Text>
+                            <Text style={styles.buttonText}>Create Account</Text>
                         </TouchableOpacity>
                     )}
 
@@ -158,16 +155,20 @@ const styles = StyleSheet.create({
         gap: 40,
     },
     bannerContainer: {
+        bottom: 40,
         alignItems: 'center',
     },
     loginBanner: {
-        fontSize: 50,
+        fontSize: 60,
         fontWeight: 'bold',
         color: 'white',
         textAlign: 'center',
         textTransform: 'uppercase',
         letterSpacing: 2,
-        fontFamily: 'Montserrat_700Bold',
+        fontFamily: Platform.select({
+            ios: 'Marker Felt',
+            android: 'casual', // fallback
+        }),
     },
     taglineText: {
         fontSize: 16,
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
         fontSize: 26,
         fontWeight: 'bold',
         textAlign: 'center',
-        color: '#1e1e1e',
+        color: 'white',
     },
     inputGroup: {
         gap: 20,
