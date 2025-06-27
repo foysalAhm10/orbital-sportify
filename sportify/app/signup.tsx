@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         gap: 40,
     },
     bannerContainer: {
-        bottom: 40,
+        bottom: 10,
         alignItems: 'center',
     },
     loginBanner: {

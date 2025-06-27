@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from '@/context/authContext';
 import { supabase } from '@/lib/supabase';
 import { useEffect } from 'react';
+import { router } from "expo-router";
 
 
 const events = [
@@ -34,6 +35,11 @@ const events = [
     imageUrl: "https://images.unsplash.com/flagged/photo-1576972405668-2d020a01cbfa?q=80&w=2948&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D/376x376", // 1:1 ratio
     dateMonth: "JUN",
     dateDay: "18",
+  },
+  {
+    id: "more", // special ID
+    title: "See More Events",
+    isMoreButton: true,
   },
 ];
 
@@ -64,23 +70,42 @@ const Index = () => {
     fetchUsername();
   }, [user]);
 
-  const renderItem = ({ item }: any) => (
-    <Pressable
-      onPress={() => alert(`You tapped on ${item.title}`)}
-      style={styles.card}
-    >
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
-      <View style={styles.overlay}>
-        <Text style={styles.title}>{item.title}</Text>
-      </View>
-      <View style={styles.dateCircle}>
-        <View style={styles.dateTextContainer}>
-          <Text style={styles.dateMonth}>{item.dateMonth}</Text>
-          <Text style={styles.dateDay}>{item.dateDay}</Text>
+  const renderItem = ({ item }: any) => {
+    if (item.isMoreButton) {
+      return (
+        <TouchableHighlight
+          activeOpacity={0.6}
+          underlayColor="#394B58"
+          onPress={() => {
+            router.push('/events')
+            // alert("Navigating to Events Page...");
+          }}
+          style={[styles.card, styles.moreCard]}
+        >
+          <View style={styles.moreCardContent}>
+            <Text style={styles.moreCardText}>Explore More Events!</Text>
+          </View>
+        </TouchableHighlight>
+      );
+    }
+
+    return (
+      <Pressable
+        onPress={() => alert(`You tapped on ${item.title}`)}
+        style={styles.card}
+      >
+        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        <View style={styles.overlay}>
+          <Text style={styles.title}>{item.title}</Text>
         </View>
-      </View>
-    </Pressable>
-  );
+        <View style={styles.dateCircle}>
+          <View style={styles.dateTextContainer}>
+            <Text style={styles.dateMonth}>{item.dateMonth}</Text>
+            <Text style={styles.dateDay}>{item.dateDay}</Text>
+          </View>
+        </View>
+      </Pressable>)
+  };
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -137,9 +162,9 @@ const Index = () => {
 
 
         {/* Upcoming Events Label */}
-        <SafeAreaView style={styles.upcomingEventsLabel}>
+        <View style={styles.upcomingEventsLabel}>
           <Text style={styles.upcomingEventsText}>Upcoming Events</Text>
-        </SafeAreaView>
+        </View>
 
         {/* Horizontal Event Slider */}
         <FlatList
@@ -188,7 +213,7 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: "center",
     alignItems: "center",
-    bottom: 200,
+    bottom: 275,
   },
   lockerButtonText: {
     color: "#F4F4F4",
@@ -237,7 +262,7 @@ const styles = StyleSheet.create({
   },
   upcomingEventsLabel: {
     justifyContent: "center",
-    top: 20,
+    bottom: 10,
   },
   upcomingEventsText: {
     fontSize: 24,
@@ -318,4 +343,26 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontFamily: "Inter",
   },
+  moreCard: {
+    backgroundColor: "#527187",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  moreCardContent: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 107,
+    width: 250,
+  },
+  moreCardText: {
+    color: "#F4F4F4",
+    fontSize: 24,
+    fontWeight: "700",
+    fontFamily: "Inter",
+    textAlign: "center",
+    letterSpacing: -0.41,
+  },
+
 });

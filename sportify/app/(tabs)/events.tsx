@@ -7,11 +7,17 @@ import {
   Modal,
   TouchableOpacity,
   TextInput,
+  Platform,
+  Keyboard,
+  Alert,
+  KeyboardAvoidingView
 } from 'react-native'
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from "expo-linear-gradient";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 
 const eventsList = [
   {
@@ -45,18 +51,154 @@ const Events = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [datePicked, setDatePicked] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [sportsType, setsportsType] = useState('');
+  const [showSportsPicker, setShowSportsPicker] = useState(false);
   const [skillLevel, setskillLevel] = useState('');
+  const [showSkillsPicker, setShowSkillsPicker] = useState(false);
   const [location, setLocation] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+
+  const toggleDatepicker = () => {
+    setShowDatePicker(!showDatePicker);
+    if (showSportsPicker) setShowSportsPicker(false);
+    if (showSkillsPicker) setShowSkillsPicker(false);
+    setShowDatePicker((prev) => !prev);
+    Keyboard.dismiss();
+
+    setTimeout(() => {
+      setShowDatePicker((prev) => !prev);
+    }, 50);
+  };
+
+  const toggleSportspicker = () => {
+    setShowSportsPicker(!showSportsPicker);
+    if (showDatePicker) setShowDatePicker(false);
+    if (showSkillsPicker) setShowSkillsPicker(false);
+    setShowSportsPicker((prev) => !prev);
+    Keyboard.dismiss();
+
+    setTimeout(() => {
+      setShowSportsPicker((prev) => !prev);
+    }, 50);
+  };
+
+  const toggleSkillspicker = () => {
+    setShowSkillsPicker(!showSkillsPicker);
+    if (showDatePicker) setShowDatePicker(false);
+    if (showSportsPicker) setShowSportsPicker(false);
+    setShowSkillsPicker((prev) => !prev);
+    Keyboard.dismiss();
+
+    setTimeout(() => {
+      setShowSkillsPicker((prev) => !prev);
+    }, 50);
+  };
+
+  const onChange = ({ type }: any, selectedDate: any) => {
+    if (type == "set") {
+      const currentDate = selectedDate;
+      setDate(currentDate); // not sure if needed, will check if there are edge cases.
+
+      if (Platform.OS === "android") {
+        toggleDatepicker();
+        setDate(currentDate.toDateString())
+        setDatePicked(true);
+      }
+    } else {
+      toggleDatepicker();
+    }
+  }
+
+  const confirmIOSDate = () => {
+    setDate(date);
+    setDatePicked(true);
+    toggleDatepicker();
+  }
+
+  const formatDate = (rawDate: string | number | Date) => {
+    let date = new Date(rawDate);
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+
+    let pDay = day < 10 ? `0${day}` : `${day}`;
+    let pMonth = month < 10 ? `0${month}` : `${month}`;
+
+    return `${pDay}-${pMonth}-${year}`;
+  }
+
+  const handleFieldFocus = () => {
+    if (showDatePicker) setShowDatePicker(false);
+    if (showSportsPicker) setShowSportsPicker(false);
+    if (showSkillsPicker) setShowSkillsPicker(false);
+  };
 
   const handleAddEvent = () => {
-    alert(`Event Created: ${title} on ${date} at ${location}`);
-    setShowForm(false);
-    setTitle(''); //to reset after closing (after adding event)
-    setDate('');
-    setLocation('');
+    if (
+      title.trim() !== '' &&
+      sportsType.trim() !== '' &&
+      skillLevel.trim() !== '' &&
+      location.trim() !== '' &&
+      datePicked
+    ) {
+      setShowForm(false);
+      clearForm();
+      alert(`Event Created Successfully: \n ${title} on ${formatDate(date)} at ${location}`);
+    } else {
+      alert('Event Creation Unsuccesful. \n Please fill up all inputs.')
+    }
   };
+
+  const handleCancelPress = () => {
+    Alert.alert(
+      'Cancel Event Creation?',
+      'Are you sure you want to discard this event?',
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: () => {
+            setShowForm(false);
+            clearForm();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const clearForm = () => {
+    setTitle(''); // to reset after closing (after adding event)
+    setDate(new Date());
+    setDatePicked(false);
+    setsportsType('');
+    setskillLevel('');
+    setLocation('');
+    handleFieldFocus();
+  }
 
   const renderItem = ({ item }: any) => (
     <View>
@@ -108,50 +250,154 @@ const Events = () => {
         </View>
 
         {showForm && (
-          <Modal style={styles.form}>
-            <SafeAreaView style={styles.modalScreen}>
-              <View className='flex-1 justify-center'>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Event Title"
-                  placeholderTextColor="#141B41"
-                  value={title}
-                  onChangeText={setTitle}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Date (e.g. 15-06-2025)"
-                  placeholderTextColor="#141B41"
-                  value={date}
-                  onChangeText={setDate}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Sports Type (e.g. Football)"
-                  placeholderTextColor="#141B41"
-                  value={sportsType}
-                  onChangeText={setsportsType}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Skill Level"
-                  placeholderTextColor="#141B41"
-                  value={skillLevel}
-                  onChangeText={setskillLevel}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Location"
-                  placeholderTextColor="#141B41"
-                  value={location}
-                  onChangeText={setLocation}
-                />
-                <Pressable style={styles.addEventButton} onPress={handleAddEvent}>
-                  <Text style={styles.addEventButtonText}>Add Event</Text>
-                </Pressable>
-              </View>
-            </SafeAreaView>
+          <Modal visible={showForm} animationType="slide">
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+            >
+                <SafeAreaView style={styles.modalScreen}>
+                  <View className='flex-1 justify-center'>
+                    {!keyboardVisible && (
+                      <View style={styles.header}>
+                        <Text style={styles.headerText}>
+                          Create your very own event today!
+                        </Text>
+                      </View>
+                    )}
+
+                    {/* ----------------------------------------------------------------------------------------------------------------------------- Event Title */}
+                    <TextInput
+                      style={[styles.input, { color: '#141B41' }]}
+                      placeholder="Event Title"
+                      placeholderTextColor="#6B7280"
+                      value={title}
+                      onChangeText={setTitle}
+                      onFocus={handleFieldFocus}
+                    />
+
+                    {/* ----------------------------------------------------------------------------------------------------------------------------- Date Picker */}
+                    <Pressable onPress={toggleDatepicker}>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Date (e.g. 15-06-2025)"
+                        placeholderTextColor="#6B7280"
+                        value={date !== undefined && date !== null && datePicked ? formatDate(date) : ''}
+                        editable={false}
+                        onPressIn={toggleDatepicker}
+                      />
+                    </Pressable>
+
+                    {showDatePicker && (
+                      <DateTimePicker
+                        mode="date"
+                        display="spinner"
+                        value={date}
+                        onChange={onChange}
+                        style={styles.datePicker}
+                        minimumDate={new Date()}
+                      />
+                    )}
+
+                    {showDatePicker && Platform.OS === "ios" && (
+                      <View style={styles.dateButtonsContainer}>
+                        <TouchableOpacity
+                          style={[styles.dateButton, { backgroundColor: '#999999' }]}
+                          onPress={() => {
+                            toggleDatepicker();
+                          }}
+                        >
+                          <Text style={styles.dateButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[styles.dateButton, { backgroundColor: '#141B41' }]}
+                          onPress={confirmIOSDate}
+                        >
+                          <Text style={styles.dateButtonText}>Confirm</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    {/* ----------------------------------------------------------------------------------------------------------------------------- Sports Type */}
+                    <Pressable style={styles.fakeInput} onPress={toggleSportspicker}>
+                      <Text style={[
+                        styles.fakeInputText,
+                        { color: sportsType ? '#141B41' : '#6B7280' }
+                      ]}>
+                        {sportsType || 'Sports Type (e.g. Football)'}
+                      </Text>
+                    </Pressable>
+
+                    {showSportsPicker && (
+                      <Picker
+                        selectedValue={sportsType}
+                        onValueChange={(itemValue) => {
+                          setsportsType(itemValue);
+                          toggleSportspicker();
+                        }}
+                        mode="dropdown"
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select A Sport..." value="" />
+                        <Picker.Item label="Badminton" value="Badminton" />
+                        <Picker.Item label="Basketball" value="Basketball" />
+                        <Picker.Item label="Football" value="Football" />
+                        <Picker.Item label="Tennis" value="Tennis" />
+                      </Picker>
+                    )}
+
+                    {/* ----------------------------------------------------------------------------------------------------------------------------- Skill Level */}
+                    <Pressable style={styles.fakeInput} onPress={toggleSkillspicker}>
+                      <Text style={[
+                        styles.fakeInputText,
+                        { color: skillLevel ? '#141B41' : '#6B7280' }
+                      ]}>
+                        {skillLevel || 'Skills Level (e.g: Casual)'}
+                      </Text>
+                    </Pressable>
+
+                    {showSkillsPicker && (
+                      <Picker
+                        selectedValue={skillLevel}
+                        onValueChange={(itemValue) => {
+                          setskillLevel(itemValue);
+                          toggleSkillspicker();
+                        }}
+                        mode="dropdown"
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="Select Your Desired Level..." value="" />
+                        <Picker.Item label="Casual" value="Casual" />
+                        <Picker.Item label="Intermediate" value="Intermediate" />
+                        <Picker.Item label="Advanced" value="Advanced" />
+                      </Picker>
+                    )}
+
+                    {/* ----------------------------------------------------------------------------------------------------------------------------- Location */}
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Location"
+                      placeholderTextColor="#6B7280"
+                      value={location}
+                      onChangeText={setLocation}
+                      onFocus={handleFieldFocus}
+                    />
+
+                    <Pressable style={styles.eventButton} onPress={handleAddEvent}>
+                      <Text style={styles.addEventButtonText}>Add Event</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={[styles.eventButton, { backgroundColor: '#999999', marginTop: 10 }]}
+                      onPress={handleCancelPress}
+                    >
+                      <Text style={styles.addEventButtonText}>Cancel</Text>
+                    </Pressable>
+                  </View>
+                </SafeAreaView>
+            </KeyboardAvoidingView>
           </Modal>
+
         )}
         <FlatList
           data={eventsList}
@@ -162,7 +408,7 @@ const Events = () => {
           ItemSeparatorComponent={() => <View style={{ height: 15 }} />}
         />
       </SafeAreaView>
-    </LinearGradient>
+    </LinearGradient >
   )
 }
 
@@ -233,6 +479,18 @@ const styles = StyleSheet.create({
   form: {
     marginTop: 10,
   },
+  header: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    bottom: 30,
+  },
+  headerText: {
+    textAlign: 'center',
+    fontFamily: 'Inter',
+    fontSize: 20,
+    fontWeight: '500',
+    color: "0B2233",
+  },
   input: {
     height: 50,
     borderColor: '#D1D5DB',
@@ -241,8 +499,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 15,
     fontSize: 16,
+    fontFamily: 'Inter'
   },
-  addEventButton: {
+  fakeInput: {
+    height: 50,
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    justifyContent: 'center', // vertical centering 
+    marginBottom: 15,
+  },
+  fakeInputText: {
+    fontSize: 16,
+    textAlign: 'left', // horizontal left...couldn't do it together with above lol
+    fontFamily: 'Inter'
+  },
+  eventButton: {
     backgroundColor: '#141B41',
     paddingVertical: 14,
     borderRadius: 10,
@@ -252,5 +525,40 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  datePicker: {
+    marginTop: -20,
+    alignSelf: 'center',
+  },
+  dateButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    marginBottom: 15,
+  },
+  dateButton: {
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  dateButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  pickerContainer: {
+    // marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 100,
+    width: '100%',
+    // backgroundColor: 'black',
+    justifyContent: 'center',
+    overflow: 'scroll',
+    marginBottom: 20,
+    fontFamily: 'Inter',
   },
 })

@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   bannerContainer: {
-    bottom: 40,
+    bottom: 10,
     alignItems: 'center',
   },
   loginBanner: {
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
     textAlign: 'right',
-    marginTop: 4,
+    marginTop: 5,
     fontWeight: '600',
   },
   button: {
