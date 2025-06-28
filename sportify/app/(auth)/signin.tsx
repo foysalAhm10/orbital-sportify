@@ -40,7 +40,7 @@ export default function Signin() {
 
     if (error || !profile?.email) {
       setLoading(false);
-      Alert.alert("Login Error", "Username not found.");
+      Alert.alert("Login Error", "Incorrect username or password."); // Username not found but we do not want others to know what the issue is.
       return;
     }
 
@@ -53,9 +53,9 @@ export default function Signin() {
     setLoading(false);
 
     if (signInError) {
-      Alert.alert("Login Error", "Incorrect password.");
+      Alert.alert("Login Error", "Incorrect username or password."); // Incorrect password but we do not want others to know what the issue is.
     } else {
-      Alert.alert("Welcome back!");
+      // Alert.alert("Welcome back!");
       router.replace('/');
     }
   };
@@ -65,7 +65,7 @@ export default function Signin() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
-      <StatusBar style="light" /> {/* default is light, but jic we need to change later */}
+      <StatusBar style="light" />
       <View style={styles.content}>
         <View style={styles.bannerContainer}>
           <Text style={styles.loginBanner}>

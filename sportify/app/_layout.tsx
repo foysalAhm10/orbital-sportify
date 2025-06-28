@@ -5,7 +5,7 @@ import { AuthContextProvider } from "@/context/authContext";
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "expo-router";
 import { Slot } from "expo-router";
-import { Text, View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import Loading from "@/components/loading";
 
 const MainLayout = () => {

@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from "expo-linear-gradient";
 import EventCard from '@/components/EventCard';
-import EventCreationForm from '@/components/EventCreationForm'; // adjust path if needed
+import EventCreationForm from '@/components/EventCreationForm';
 
 
 const eventsList = [
@@ -75,7 +75,6 @@ const Events = () => {
             isVisible={showForm}
             onClose={() => setShowForm(false)}
             onEventCreated={() => {
-              // Optional: refresh the events list from Supabase if using dynamic data
               console.log('Event created!');
             }}
           />
