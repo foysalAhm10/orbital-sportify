@@ -31,13 +31,13 @@ const EventCard = ({ item, isVisible, onOpen, onClose }: EventCardProps) => {
 
       {isVisible && (
         <Modal visible={true} animationType="slide">
-          <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#083344' }}>
-              <View style={{ height: 100, width: 200, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }}>
+          <SafeAreaView style={styles.modalScreen}>
+            <View className="flex-1 justify-center items-center bg-cyan-950 my-1 mx-3">
+              <View style={styles.modalContentContainer}>
                 <Text style={styles.modalTitle}>{item.title}</Text>
                 <Text style={styles.modalSubtitle}>{item.description}</Text>
                 <TouchableOpacity onPress={onClose}>
-                  <Text style={{ color: 'white', backgroundColor: 'black', padding: 8 }}>
+                  <Text style={styles.modalCloseButtonText}>
                     CLOSE
                   </Text>
                 </TouchableOpacity>
@@ -71,6 +71,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontSize: 16,
   },
+  modalScreen: {
+    flex: 1,
+    backgroundColor: "#8EA4D2",
+    paddingHorizontal: 16,
+  },
   modalTitle: {
     color: 'white',
     fontSize: 18,
@@ -82,10 +87,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
   },
-  modalClose: {
-    color: 'white',
+   modalContentContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "blue",
+    padding: 10,
+  },
+  modalCloseButtonText: {
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: 'black',
+    color: 'white',
+    fontFamily: 'Inter',
     padding: 8,
-    marginTop: 8,
   },
 });

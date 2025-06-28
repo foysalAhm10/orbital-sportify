@@ -31,7 +31,7 @@ const Events = () => {
         id: ev.id.toString(),
         title: ev.Title,
         // you can tweak description: here we show sport + level + location
-        description: `${ev['Sports Type']} • ${ev['Skill Level']} • ${ev.Location}`,
+        description: `${ev['Skill Level']} ${ev['Sports Type']} match at ${ev.Location}!`,
       }));
       setEventsList(formatted);
     }
