@@ -34,10 +34,8 @@ const EventCard = ({ item, isVisible, onOpen, onClose }: EventCardProps) => {
           <SafeAreaView style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#083344' }}>
               <View style={{ height: 100, width: 200, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }}>
-                <Text>{item.title}</Text>
-                <Text style={{ textAlign: 'center' }}>
-                  Work in Progress.{'\n'}More coming soon!
-                </Text>
+                <Text style={styles.modalTitle}>{item.title}</Text>
+                <Text style={styles.modalSubtitle}>{item.description}</Text>
                 <TouchableOpacity onPress={onClose}>
                   <Text style={{ color: 'white', backgroundColor: 'black', padding: 8 }}>
                     CLOSE
@@ -67,5 +65,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontSize: 20,
     fontWeight: "600",
+  },
+  eventsCardSubtitle: {
+    color: "#0B2233",
+    fontFamily: 'Inter',
+    fontSize: 16,
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  modalClose: {
+    color: 'white',
+    backgroundColor: 'black',
+    padding: 8,
+    marginTop: 8,
   },
 });

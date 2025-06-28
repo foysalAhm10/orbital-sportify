@@ -5,45 +5,42 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from "expo-linear-gradient";
+import { supabase } from '@/lib/supabase';
 import EventCard from '@/components/EventCard';
 import EventCreationForm from '@/components/EventCreationForm';
 
-
-const eventsList = [
-  {
-    id: "1",
-    title: "Football Fiesta",
-    description: "Fast-paced games, good vibes, and plenty of goals. All skill levels welcome!",
-    imageUrl: "",
-    dateMonth: "MAY",
-    dateDay: "21",
-  },
-  {
-    id: "2",
-    title: "Tennis with Antor",
-    description: "Hit the court with Antor for some fun, friendly rallies. Racquets ready!",
-    imageUrl: "",
-    dateMonth: "JUN",
-    dateDay: "18",
-  },
-  {
-    id: "3",
-    title: "Badminton with Besties",
-    description: "Smash, rally, and laugh it out with your besties on the court!",
-    imageUrl: "",
-    dateMonth: "AUG",
-    dateDay: "20",
-  }
-];
-
 const Events = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false)
-  const [showForm, setShowForm] = useState(false);
+  const [eventsList, setEventsList] = useState<any[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const fetchEvents = async () => {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*');
+    if (error) {
+      console.error('Error fetching events:', error);
+    } else if (data) {
+      // map DB rows into the shape EventCard expects
+      const formatted = data.map(ev => ({
+        id: ev.id.toString(),
+        title: ev.Title,
+        // you can tweak description: here we show sport + level + location
+        description: `${ev['Sports Type']} • ${ev['Skill Level']} • ${ev.Location}`,
+      }));
+      setEventsList(formatted);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
 
   const renderItem = ({ item }: any) => (
     <EventCard
@@ -75,6 +72,7 @@ const Events = () => {
             isVisible={showForm}
             onClose={() => setShowForm(false)}
             onEventCreated={() => {
+              fetchEvents();    // ← refresh list after new event
               console.log('Event created!');
             }}
           />
