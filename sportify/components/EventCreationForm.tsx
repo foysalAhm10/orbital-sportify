@@ -141,13 +141,12 @@ const EventCreationForm = ({ isVisible, onClose, onEventCreated }: EventCreation
       location.trim() !== '' &&
       datePicked
     ) {
-      // ② insert into Supabase
       const { data, error } = await supabase
         .from('events')
         .insert([
           {
             Title: title,
-            Date: date,                      // JS Date will be converted to SQL DATE
+            Date: date,                    
             "Sports Type": sportsType,
             "Skill Level": skillLevel,
             Location: location,

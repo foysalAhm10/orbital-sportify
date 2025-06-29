@@ -26,11 +26,10 @@ const Events = () => {
     if (error) {
       console.error('Error fetching events:', error);
     } else if (data) {
-      // map DB rows into the shape EventCard expects
+      
       const formatted = data.map(ev => ({
         id: ev.id.toString(),
         title: ev.Title,
-        // you can tweak description: here we show sport + level + location
         description: `${ev['Skill Level']} ${ev['Sports Type']} match at ${ev.Location}!`,
       }));
       setEventsList(formatted);
@@ -72,7 +71,7 @@ const Events = () => {
             isVisible={showForm}
             onClose={() => setShowForm(false)}
             onEventCreated={() => {
-              fetchEvents();    // ← refresh list after new event
+              fetchEvents();  
               console.log('Event created!');
             }}
           />

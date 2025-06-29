@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1e1e1e',
+    textAlign: 'center',
   },
   userEmail: {
     fontSize: 16,

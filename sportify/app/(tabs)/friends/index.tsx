@@ -1,4 +1,3 @@
-// app/(tabs)/friends.tsx
 import React, { useEffect, useState } from 'react'
 import {
   View,
@@ -12,6 +11,8 @@ import {
 } from 'react-native'
 import { supabase } from '@/lib/supabase'
 import Loading from '@/components/loading';
+import { useRouter } from 'expo-router';
+import ProfileCard from '@/components/ProfileCard';
 
 type Profile = {
   id: string
@@ -19,17 +20,16 @@ type Profile = {
 }
 
 export default function Friends() {
+  const router = useRouter()
   const [allUsers, setAllUsers] = useState<Profile[]>([])
   const [filtered, setFiltered] = useState<Profile[]>([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // 1. Fetch all other users on mount
   useEffect(() => {
     fetchUsers()
   }, [])
 
-  // 2. Whenever search or allUsers changes, re‑filter
   useEffect(() => {
     const q = search.trim().toLowerCase()
     if (q === '') {
@@ -45,7 +45,7 @@ export default function Friends() {
 
   const fetchUsers = async () => {
     setLoading(true)
-    // get current user's id
+
     const {
       data: { user },
       error: authErr
@@ -56,7 +56,7 @@ export default function Friends() {
       return
     }
 
-    // query profiles, exclude current user
+
     let { data, error } = await supabase
       .from('profiles')
       .select('id, username')
@@ -71,25 +71,42 @@ export default function Friends() {
   }
 
   const renderItem = ({ item }: { item: Profile }) => (
-    <Pressable
-      style={styles.card}
-      onPress={() => console.log('Add friend or open profile for', item.username)}
-    >
-      <Text style={styles.username}>{item.username}</Text>
-    </Pressable>
+    <ProfileCard
+      id={item.id}
+      username={item.username}
+      onRequested={() => {
+
+        fetchUsers()
+      }}
+    />
   )
 
   return (
     <SafeAreaView style={styles.screen}>
       <Text style={styles.header}>Friends</Text>
 
-      {/* 1. SEARCH BAR */}
       <TextInput
         style={styles.searchInput}
         placeholder="Search users…"
         value={search}
         onChangeText={setSearch}
       />
+
+      <View style={styles.tabRow}>
+        <Pressable
+          style={styles.tabButton}
+          onPress={() => router.push('/friends/friendslist')}
+        >
+          <Text style={styles.tabButtonText}>Friends</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.tabButton}
+          onPress={() => router.push('/friends/requests')}
+        >
+          <Text style={styles.tabButtonText}>Requests</Text>
+        </Pressable>
+      </View>
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -143,5 +160,25 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     alignItems: 'center',
+  },
+  tabRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  tabButton: {
+    flex: 1,
+    marginHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    alignItems: 'center',
+  },
+  tabButtonText: {
+    fontFamily: 'Inter', fontSize: 16,
+    color: '#0B2233',
+    fontWeight: '600',
   },
 })
