@@ -21,6 +21,8 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./sportify
 
       - name: Run Tests
         run: npm run test
+        working-directory: ./sportify
