@@ -13,7 +13,6 @@ export default function FriendsList() {
   const [loading, setLoading] = useState(true)
 
 
-
   useEffect(() => {
     const fetchFriends = async () => {
 
@@ -35,8 +34,8 @@ export default function FriendsList() {
       } else {
 
         const combined = [
-          ...outgoing.map(r => ({ id: r.requestee_id, username: r.profiles[0]?.username })),
-          ...incoming.map(r => ({ id: r.requester_id, username: r.profiles[0]?.username })),
+          ...outgoing.map(r => ({ id: r.requestee_id, username: (r.profiles as { username?: string })?.username ?? '' })),
+          ...incoming.map(r => ({ id: r.requester_id, username: (r.profiles as { username?: string })?.username ?? '' })),
         ]
         setFriends(combined)
       }
