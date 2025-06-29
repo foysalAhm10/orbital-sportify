@@ -2,7 +2,7 @@ import { View, Text } from 'react-native';
 import React, { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import Loading from '@/components/loading';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function StartPage() {
   const router = useRouter();

@@ -15,6 +15,7 @@ import { Octicons, MaterialIcons } from '@expo/vector-icons';
 
 import { supabase } from '@/lib/supabase';
 import Loading from '@/components/loading';
+import React from 'react';
 
 export default function Signup() {
     const router = useRouter();

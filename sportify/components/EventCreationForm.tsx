@@ -141,13 +141,13 @@ const EventCreationForm = ({ isVisible, onClose, onEventCreated }: EventCreation
       location.trim() !== '' &&
       datePicked
     ) {
-      // ② insert into Supabase
+      // insert into Supabase
       const { data, error } = await supabase
         .from('events')
         .insert([
           {
             Title: title,
-            Date: date,                      // JS Date will be converted to SQL DATE
+            Date: date,
             "Sports Type": sportsType,
             "Skill Level": skillLevel,
             Location: location,
@@ -238,6 +238,7 @@ const EventCreationForm = ({ isVisible, onClose, onEventCreated }: EventCreation
 
             {showSportsPicker && (
               <Picker
+                testID="picker"
                 selectedValue={sportsType}
                 onValueChange={(itemValue) => {
                   setSportsType(itemValue);
@@ -262,6 +263,7 @@ const EventCreationForm = ({ isVisible, onClose, onEventCreated }: EventCreation
 
             {showSkillsPicker && (
               <Picker
+                testID="picker"
                 selectedValue={skillLevel}
                 onValueChange={(itemValue) => {
                   setSkillLevel(itemValue);

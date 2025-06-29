@@ -6,7 +6,11 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "types": ["jest"],
+    "jsx": "react",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true
   },
   "include": [
     "**/*.ts",

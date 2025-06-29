@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { Slot } from "expo-router";
 import { View } from "react-native";
 import Loading from "@/components/loading";
+import React from "react";
 
 const MainLayout = () => {
   const { isAuthenticated, loading } = useAuth();
