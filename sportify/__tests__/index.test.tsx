@@ -39,8 +39,10 @@ describe('Index Screen', () => {
     // async because usually we have to wait for the username to be rendered
     // right now there is a console error, will look into it in the future...
     expect(await findByText('WELCOME BACK, ANTOR')).toBeTruthy();
-    expect(findByText('Locker Room Update')).toBeTruthy();
-  });
+    expect(await findByText('Locker Room Update')).toBeTruthy();
+  },
+    10000
+  );
 
   it('renders Upcoming Events label and cards', async () => {
     const { getByText } = render(<Index />);
